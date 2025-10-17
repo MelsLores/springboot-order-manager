@@ -453,7 +453,7 @@ graph TB
 - ✅ **Spring Boot 3.0 Web Application** with Java 17
 - ✅ **Order Management System** with database connectivity
 - ✅ **RESTful API** for CRUD operations
-- ✅ **H2 Database Integration** for development
+- ✅ **H2 and PostgreSQL Database Integration** 
 - ✅ **Comprehensive Documentation** with JavaDoc
 - ✅ **Postman Collection** for API testing
 - ✅ **Startup Scripts** for automated deployment
