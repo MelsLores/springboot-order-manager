@@ -1,0 +1,36 @@
+# Logs
+logs/
+*.log
+
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Application specific
+application-*.yml
+!application.yml
+
+# H2 Database
+*.db
+*.mv.db
+*.trace.db
+
+# Temporary files
+*.tmp
+*.temp

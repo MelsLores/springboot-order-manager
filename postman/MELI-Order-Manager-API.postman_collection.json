@@ -1,0 +1,299 @@
+{
+  "info": {
+    "name": "MELI Order Manager API - Sprint 1",
+    "description": "Complete API collection for MELI Order Management System developed with Spring Boot 3.0. This collection includes all CRUD operations for order management in an e-commerce platform.\n\n**Author:** Arturo Bandini\n**Project:** MELI Order Management System\n**Framework:** Spring Boot 3.0 + Java 17\n**Database:** PostgreSQL (Production) / H2 (Development)\n\n**Base URL:** http://localhost:8080/api/v1\n\n**Available Operations:**\n- Create Order\n- Get All Orders (with pagination)\n- Get Order by ID\n- Update Order\n- Update Order Status\n- Delete Order\n- Search Orders by Status\n- Search Orders by Customer Email\n- Get Orders by Date Range\n- System Health Check\n\n**Testing Instructions:**\n1. Start the application with: mvn spring-boot:run\n2. Ensure PostgreSQL is running on localhost:5432\n3. Run requests in the suggested order for best testing experience\n4. Check response status codes and validation messages\n\n**Note:** All endpoints include proper error handling and validation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. System Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/orders/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "health"]
+        },
+        "description": "Check if the Order Management API is running and accessible."
+      },
+      "response": []
+    },
+    {
+      "name": "2. Create New Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"customerName\": \"Juan Pérez\",\n    \"customerEmail\": \"juan.perez@email.com\",\n    \"productName\": \"Smartphone Samsung Galaxy S24\",\n    \"quantity\": 2,\n    \"unitPrice\": 899.99,\n    \"shippingAddress\": \"Av. Libertador 1234, CABA, Buenos Aires, Argentina\",\n    \"status\": \"PENDING\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders"]
+        },
+        "description": "Create a new order in the system. The total amount will be automatically calculated based on quantity and unit price."
+      },
+      "response": []
+    },
+    {
+      "name": "2b. Create Order (Auto Status)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"customerName\": \"María González\",\n    \"customerEmail\": \"maria.gonzalez@email.com\",\n    \"productName\": \"Laptop Dell Inspiron\",\n    \"quantity\": 1,\n    \"unitPrice\": 1299.99,\n    \"shippingAddress\": \"Av. Corrientes 5678, CABA, Buenos Aires, Argentina\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders"]
+        },
+        "description": "Create a new order without specifying status. Status will be automatically set to PENDING."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Get All Orders",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/orders",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders"]
+        },
+        "description": "Retrieve all orders with default pagination (page=0, size=20)."
+      },
+      "response": []
+    },
+    {
+      "name": "4. Get Orders with Pagination",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/orders?page=0&size=5&sortBy=createdAt&sortDir=desc",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders"],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            },
+            {
+              "key": "sortBy",
+              "value": "createdAt"
+            },
+            {
+              "key": "sortDir",
+              "value": "desc"
+            }
+          ]
+        },
+        "description": "Retrieve orders with custom pagination and sorting options."
+      },
+      "response": []
+    },
+    {
+      "name": "5. Get Order by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/orders/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "1"]
+        },
+        "description": "Retrieve a specific order by its ID. Replace '1' with the actual order ID."
+      },
+      "response": []
+    },
+    {
+      "name": "6. Search Orders by Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/orders/status/PENDING",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "status", "PENDING"]
+        },
+        "description": "Find all orders with a specific status. Valid statuses: PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED."
+      },
+      "response": []
+    },
+    {
+      "name": "7. Search Orders by Customer Email",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/orders/customer/juan.perez@email.com",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "customer", "juan.perez@email.com"]
+        },
+        "description": "Find all orders for a specific customer by email address."
+      },
+      "response": []
+    },
+    {
+      "name": "8. Get Orders by Date Range",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/orders/date-range?startDate=2025-10-01T00:00:00&endDate=2025-10-31T23:59:59",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "date-range"],
+          "query": [
+            {
+              "key": "startDate",
+              "value": "2025-10-01T00:00:00"
+            },
+            {
+              "key": "endDate",
+              "value": "2025-10-31T23:59:59"
+            }
+          ]
+        },
+        "description": "Retrieve orders created within a specific date range. Use ISO 8601 format for dates."
+      },
+      "response": []
+    },
+    {
+      "name": "9. Update Complete Order",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"customerName\": \"Juan Pérez Actualizado\",\n    \"customerEmail\": \"juan.perez.updated@email.com\",\n    \"productName\": \"Smartphone Samsung Galaxy S24 Ultra\",\n    \"quantity\": 1,\n    \"unitPrice\": 1299.99,\n    \"shippingAddress\": \"Nueva Dirección: Av. Corrientes 5678, CABA, Buenos Aires, Argentina\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "1"]
+        },
+        "description": "Update all fields of an existing order. Replace '1' with the actual order ID."
+      },
+      "response": []
+    },
+    {
+      "name": "10. Update Order Status Only",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"status\": \"SHIPPED\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders/1/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "1", "status"]
+        },
+        "description": "Update only the status of an existing order. Valid statuses: PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED."
+      },
+      "response": []
+    },
+    {
+      "name": "11. Delete Order",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/orders/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "1"]
+        },
+        "description": "Delete an order by ID. Replace '1' with the actual order ID. This operation cannot be undone."
+      },
+      "response": []
+    },
+    {
+      "name": "12. Get Order Statistics",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/orders/stats",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "stats"]
+        },
+        "description": "Get statistical information about orders in the system."
+      },
+      "response": []
+    },
+    {
+      "name": "ERROR CASE: Create Order with Invalid Data",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"customerName\": \"\",\n    \"customerEmail\": \"invalid-email\",\n    \"productName\": \"\",\n    \"quantity\": -1,\n    \"unitPrice\": -100.00,\n    \"shippingAddress\": \"\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders"]
+        },
+        "description": "Test validation errors by sending invalid data. This should return HTTP 400 with validation error messages."
+      },
+      "response": []
+    },
+    {
+      "name": "ERROR CASE: Get Non-existent Order",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/orders/99999",
+          "host": ["{{baseUrl}}"],
+          "path": ["orders", "99999"]
+        },
+        "description": "Test error handling by requesting a non-existent order. This should return HTTP 404."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1",
+      "type": "string"
+    }
+  ]
+}
