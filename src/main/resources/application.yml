@@ -1,0 +1,43 @@
+# Spring Boot Configuration
+spring:
+  application:
+    name: order-manager
+  
+  # PostgreSQL Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    
+  # JPA/Hibernate Configuration
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    format-sql: true
+    defer-datasource-initialization: true
+  
+  # SQL Initialization Configuration
+  sql:
+    init:
+      mode: always
+
+# Server Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+# Logging Configuration
+logging:
+  level:
+    '[com.meli.ordermanager]': DEBUG
+    '[org.springframework.web]': DEBUG
+    '[org.hibernate]': DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/order-manager.log
