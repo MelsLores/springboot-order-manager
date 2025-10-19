@@ -1,22 +1,33 @@
-# Spring Boot Configuration
+# MELI Order Manager - Main Configuration
+# This file contains common configurations shared across all environments
+# Environment-specific configurations are in application-{profile}.yml files
+
 spring:
   application:
     name: order-manager
   
-  # PostgreSQL Database Configuration
-  datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: postgres
+  # Default Profile Configuration
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:prod}
     
-  # JPA/Hibernate Configuration
+  # Common Application Configuration
+  main:
+    banner-mode: console
+    lazy-initialization: false
+    
+# PostgreSQL Database Configuration (Default)
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/postgres}
+    driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    
+  # JPA/Hibernate Configuration for PostgreSQL
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
-    format-sql: true
+      ddl-auto: ${DDL_AUTO:create-drop}
+    show-sql: ${SHOW_SQL:true}
     defer-datasource-initialization: true
   
   # SQL Initialization Configuration
@@ -24,20 +35,115 @@ spring:
     init:
       mode: always
 
-# Server Configuration
+  # Common Jackson Configuration
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: true
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+    
+  # Common Web Configuration
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          max-age: 1h
+          
+# Common Server Configuration
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   servlet:
-    context-path: /api/v1
+    context-path: ${CONTEXT_PATH:/api/v1}
+  shutdown: graceful
+  compression:
+    enabled: true
+  error:
+    include-binding-errors: on-param
 
-# Logging Configuration
+# Common Logging Configuration
 logging:
   level:
-    '[com.meli.ordermanager]': DEBUG
-    '[org.springframework.web]': DEBUG
-    '[org.hibernate]': DEBUG
+    '[com.meli.ordermanager]': ${LOG_LEVEL_APP:DEBUG}
+    '[org.springframework.web]': ${LOG_LEVEL_WEB:DEBUG}
+    '[org.hibernate]': ${LOG_LEVEL_HIBERNATE:DEBUG}
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   file:
-    name: logs/order-manager.log
+    name: ${LOG_FILE_PATH:logs/order-manager.log}
+
+# 📊 Spring Boot Actuator Configuration - Production Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env,configprops,beans,mappings
+      base-path: /actuator
+      cors:
+        allowed-origins: "*"
+        allowed-methods: GET,POST
+  endpoint:
+    health:
+      show-details: ${ACTUATOR_HEALTH_DETAILS:when-authorized}
+      show-components: always
+    info:
+      enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  info:
+    env:
+      enabled: true
+    build:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    enable:
+      jvm: true
+      process: true
+      system: true
+      jdbc: true
+      hikaricp: true
+      http: true
+    tags:
+      application: ${spring.application.name}
+      environment: ${spring.profiles.active}
+
+# 📖 OpenAPI/Swagger Configuration
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    try-it-out-enabled: true
+    filter: true
+  show-actuator: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+# 🔧 Additional Application Properties  
+info:
+  app:
+    name: '@project.name@'
+    description: '@project.description@'
+    version: '@project.version@'
+    encoding: '@project.build.sourceEncoding@'
+    java:
+      version: '@java.version@'
+  build:
+    artifact: '@project.artifactId@'
+    group: '@project.groupId@'
