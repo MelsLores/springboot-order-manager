@@ -781,7 +781,7 @@ graph TB
 - ✅ **Spring Boot 3.0 Web Application** with Java 17
 - ✅ **Order Management System** with database connectivity
 - ✅ **RESTful API** for CRUD operations
-- ✅ **H2 Database Integration** for development
+- ✅ **H2 and PostgreSQL Database Integration** 
 - ✅ **Comprehensive Documentation** with JavaDoc
 - ✅ **Postman Collection** for API testing
 - ✅ **Startup Scripts** for automated deployment
@@ -1986,3 +1986,5 @@ This section showcases the operational excellence and multi-environment capabili
 *Enterprise-Grade E-commerce Solution*  
 **Developed by**: Melany Rivera | **Version**: 2.0.0 | **Date**: October 2025  
 **Certification**: ✅ Production-Ready | 🌱 Sustainability-Compliant | 📈 Enterprise-Scalable
+**Digital NAO Challenge - Spring Boot Order Management System**  
+*Developed by Arturo Bandini - Sprint 1 Implementation*
