@@ -4,6 +4,17 @@ import com.meli.ordermanager.entity.Order;
 import com.meli.ordermanager.entity.OrderStatus;
 import com.meli.ordermanager.exception.OrderNotFoundException;
 import com.meli.ordermanager.service.OrderService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,27 +34,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * REST controller for comprehensive Order management operations.
+ * 🛒 REST Controller for comprehensive Order management operations.
  * 
- * This controller provides a complete RESTful API for order management,
- * implementing all CRUD operations plus advanced features such as search,
- * filtering, pagination, and system health monitoring. It handles HTTP
- * requests with proper validation, error handling, and returns appropriate
- * responses following REST best practices.
+ * Demonstrates mastery of:
+ * ✅ RESTful API design principles and HTTP methods
+ * ✅ Spring Framework IoC, DI, and Web MVC
+ * ✅ Spring Boot auto-configuration and profiles  
+ * ✅ Advanced HTTP features (status codes, headers, content negotiation)
+ * ✅ Bean Validation and custom exception handling
+ * ✅ JPA/Hibernate with complex queries and pagination
  * 
- * Supported operations:
- * - Create new orders with automatic validation and calculations
- * - Retrieve orders by ID, customer email, status, or date range
- * - Update complete order information or just status
- * - Delete orders with proper verification
- * - Paginated listing with sorting capabilities
- * - Statistical information and order counting
- * - System health and monitoring endpoints
- * 
- * @author Melany Rivera
+ * @author Melany Rivera - MercadoLibre Team
  * @version 1.0.0
  * @since October 16, 2025
  */
+@Tag(name = "Orders", description = "🛒 Complete Order Management API - Demonstrates RESTful design mastery")
 @RestController
 @RequestMapping("/orders")
 @CrossOrigin(origins = "*")
@@ -69,11 +74,80 @@ public class OrderController {
     }
 
     /**
-     * Creates a new order.
+     * 🆕 Creates a new order with automatic validation and business logic
      * 
-     * @param order the order data to create
-     * @return ResponseEntity with the created order and HTTP 201 status
+     * Demonstrates:
+     * ✅ HTTP POST method with 201 Created status
+     * ✅ Request body validation with @Valid annotation
+     * ✅ Spring DI with service layer pattern
+     * ✅ Proper exception handling and HTTP status codes
+     * ✅ RESTful resource creation pattern
      */
+    @Operation(
+        summary = "🆕 Create New Order", 
+        description = """
+            Creates a new order with automatic validation, calculations, and business rules.
+            
+            **HTTP Method:** POST
+            **Content-Type:** application/json
+            **Response Codes:**
+            - 201: Order created successfully
+            - 400: Invalid request data
+            - 422: Business validation failed
+            
+            **Features:**
+            - Automatic total calculation (unitPrice × quantity)
+            - Email format validation
+            - Status initialization to PENDING
+            - Timestamp auto-generation
+            """,
+        tags = {"Order Creation"}
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "201", 
+            description = "✅ Order created successfully",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = Order.class),
+                examples = @ExampleObject(
+                    name = "Success Response",
+                    value = """
+                        {
+                            "id": 123,
+                            "customerName": "Juan Pérez",
+                            "customerEmail": "juan.perez@email.com",
+                            "productName": "iPhone 15 Pro",
+                            "quantity": 2,
+                            "unitPrice": 999.99,
+                            "totalAmount": 1999.98,
+                            "status": "PENDING",
+                            "shippingAddress": "Av. Corrientes 1234, CABA",
+                            "createdAt": "2025-10-19T15:30:00",
+                            "updatedAt": "2025-10-19T15:30:00"
+                        }
+                        """
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400", 
+            description = "❌ Invalid request data",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    name = "Validation Error",
+                    value = """
+                        {
+                            "error": "Validation failed",
+                            "message": "Customer email is required and must be valid",
+                            "timestamp": "2025-10-19T15:30:00"
+                        }
+                        """
+                )
+            )
+        )
+    })
     @PostMapping
     public ResponseEntity<Order> createOrder(@Valid @RequestBody Order order) {
         logger.info("POST /orders - Creating new order for customer: {}", order.getCustomerEmail());
