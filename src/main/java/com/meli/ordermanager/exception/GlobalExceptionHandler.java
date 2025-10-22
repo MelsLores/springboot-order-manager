@@ -5,13 +5,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 
 /**
  * Global exception handler for the Order Manager application.
@@ -155,6 +163,79 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles MethodArgumentTypeMismatchException (e.g., invalid ID format) and returns 400 Bad Request.
+     * 
+     * @param ex the MethodArgumentTypeMismatchException that was thrown
+     * @param request the web request that caused the exception
+     * @return ResponseEntity with error details and 400 status
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException ex, WebRequest request) {
+        
+        logger.warn("Invalid parameter format: {} for parameter {}", ex.getValue(), ex.getName());
+        
+        String message = String.format("Invalid format for parameter '%s': '%s'", ex.getName(), ex.getValue());
+        
+        Map<String, Object> errorResponse = createErrorResponse(
+            HttpStatus.BAD_REQUEST.value(),
+            "Invalid Parameter Format",
+            message,
+            request.getDescription(false)
+        );
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handles DateTimeParseException and returns 400 Bad Request.
+     * 
+     * @param ex the DateTimeParseException that was thrown
+     * @param request the web request that caused the exception
+     * @return ResponseEntity with error details and 400 status
+     */
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<Map<String, Object>> handleDateTimeParseException(
+            DateTimeParseException ex, WebRequest request) {
+        
+        logger.warn("Invalid date format: {}", ex.getMessage());
+        
+        Map<String, Object> errorResponse = createErrorResponse(
+            HttpStatus.BAD_REQUEST.value(),
+            "Invalid Date Format",
+            "Invalid date format. Please use ISO format (yyyy-MM-ddTHH:mm:ss)",
+            request.getDescription(false)
+        );
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handles MissingServletRequestParameterException and returns 400 Bad Request.
+     * 
+     * @param ex the MissingServletRequestParameterException that was thrown
+     * @param request the web request that caused the exception
+     * @return ResponseEntity with error details and 400 status
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Map<String, Object>> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException ex, WebRequest request) {
+        
+        logger.warn("Missing required parameter: {}", ex.getParameterName());
+        
+        String message = String.format("Required parameter '%s' is missing", ex.getParameterName());
+        
+        Map<String, Object> errorResponse = createErrorResponse(
+            HttpStatus.BAD_REQUEST.value(),
+            "Missing Required Parameter",
+            message,
+            request.getDescription(false)
+        );
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
      * Handles IllegalArgumentException and returns 400 Bad Request.
      * 
      * @param ex the IllegalArgumentException that was thrown
@@ -247,5 +328,53 @@ public class GlobalExceptionHandler {
         errorResponse.put("message", message);
         errorResponse.put("path", path.replace("uri=", ""));
         return errorResponse;
+    }
+
+    /**
+     * Handles JSON parse / deserialization errors (e.g., unknown enum values) and returns 400 Bad Request.
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex, WebRequest request) {
+
+        logger.warn("Malformed JSON request: {}", ex.getMessage());
+
+        // If the cause is an InvalidFormatException (unknown enum value), extract helpful details
+        Throwable cause = ex.getCause();
+        if (cause instanceof InvalidFormatException) {
+            InvalidFormatException ife = (InvalidFormatException) cause;
+            String targetType = ife.getTargetType() != null ? ife.getTargetType().getSimpleName() : "unknown";
+            String rejected = ife.getValue() != null ? ife.getValue().toString() : "<null>";
+
+            String allowed = "";
+            try {
+                Class<?> clazz = ife.getTargetType();
+                if (clazz.isEnum()) {
+                    Object[] constants = clazz.getEnumConstants();
+                    allowed = Arrays.stream(constants).map(Object::toString).collect(Collectors.joining(", "));
+                }
+            } catch (Exception ignore) {
+            }
+
+            String message = String.format("Invalid value '%s' for type %s. Allowed values: %s", rejected, targetType, allowed);
+
+            Map<String, Object> errorResponse = createErrorResponse(
+                    HttpStatus.BAD_REQUEST.value(),
+                    "Malformed JSON",
+                    message,
+                    request.getDescription(false)
+            );
+
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        Map<String, Object> errorResponse = createErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Malformed JSON",
+                "Request body is not readable or is malformed JSON",
+                request.getDescription(false)
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

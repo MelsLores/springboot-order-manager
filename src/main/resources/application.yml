@@ -26,14 +26,14 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: ${DDL_AUTO:create-drop}
+      ddl-auto: ${DDL_AUTO:update}
     show-sql: ${SHOW_SQL:true}
     defer-datasource-initialization: true
   
   # SQL Initialization Configuration
   sql:
     init:
-      mode: always
+      mode: never
 
   # Common Jackson Configuration
   jackson:
